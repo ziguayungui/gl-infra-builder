@@ -1,0 +1,573 @@
+From aa65297e75b5f8ccc968472bdedec45d121bff62 Mon Sep 17 00:00:00 2001
+From: ziguayungui <244753440@qq.com>
+Date: Mon, 13 May 2024 14:22:24 +0000
+Subject: [PATCH] support 360 T7
+
+---
+ .../dts/mediatek/mt7981-360-t7-108M-256M.dts  |  64 ++++++
+ .../dts/mediatek/mt7981-360-t7-108M-512M.dts  |  64 ++++++
+ .../boot/dts/mediatek/mt7981-360-t7-base.dtsi | 213 ++++++++++++++++++
+ .../arm64/boot/dts/mediatek/mt7981-360-t7.dts |  74 ++++++
+ target/linux/mediatek/image/mt7981.mk         |  51 +++++
+ .../mt7981/base-files/etc/board.d/01_leds     |   4 +
+ .../mt7981/base-files/etc/board.d/02_network  |  19 ++
+ 7 files changed, 489 insertions(+)
+ create mode 100644 target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-256M.dts
+ create mode 100644 target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-512M.dts
+ create mode 100644 target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-base.dtsi
+ create mode 100644 target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7.dts
+
+diff --git a/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-256M.dts b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-256M.dts
+new file mode 100644
+index 0000000000..eeafa86fad
+--- /dev/null
++++ b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-256M.dts
+@@ -0,0 +1,64 @@
++/dts-v1/;
++#include "mt7981-360-t7-base.dtsi"
++
++/ {
++	memory {
++		reg = <0 0x40000000 0 0x10000000>;
++	};
++
++	nmbm_spim_nand {
++		compatible = "generic,nmbm";
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		lower-mtd-device = <&spi_nand>;
++		forced-create;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "BL2";
++				reg = <0x00 0x100000>;
++			};
++
++			partition@100000 {
++				label = "u-boot-env";
++				reg = <0x100000 0x80000>;
++			};
++
++			partition@180000 {
++				label = "Factory";
++				reg = <0x180000 0x200000>;
++			};
++
++			partition@380000 {
++				label = "FIP";
++				reg = <0x380000 0x200000>;
++			};
++
++			partition@580000 {
++				label = "ubi";
++				reg = <0x580000 0x6c00000>;
++			};
++
++			partition@7180000 {
++				label = "stock-config";
++				reg = <0x7180000 0x100000>;
++			};
++
++			partition@7280000 {
++				label = "stock-factory";
++				reg = <0x7280000 0x80000>;
++			};
++
++			partition@7300000 {
++				label = "stock-log";
++				reg = <0x7300000 0x400000>;
++			};
++		};
++	};
++};
+diff --git a/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-512M.dts b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-512M.dts
+new file mode 100644
+index 0000000000..be44df82c9
+--- /dev/null
++++ b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-108M-512M.dts
+@@ -0,0 +1,64 @@
++/dts-v1/;
++#include "mt7981-360-t7-base.dtsi"
++
++/ {
++	memory {
++		reg = <0 0x40000000 0 0x20000000>;
++	};
++
++	nmbm_spim_nand {
++		compatible = "generic,nmbm";
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		lower-mtd-device = <&spi_nand>;
++		forced-create;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "BL2";
++				reg = <0x00 0x100000>;
++			};
++
++			partition@100000 {
++				label = "u-boot-env";
++				reg = <0x100000 0x80000>;
++			};
++
++			partition@180000 {
++				label = "Factory";
++				reg = <0x180000 0x200000>;
++			};
++
++			partition@380000 {
++				label = "FIP";
++				reg = <0x380000 0x200000>;
++			};
++
++			partition@580000 {
++				label = "ubi";
++				reg = <0x580000 0x6c00000>;
++			};
++
++			partition@7180000 {
++				label = "stock-config";
++				reg = <0x7180000 0x100000>;
++			};
++
++			partition@7280000 {
++				label = "stock-factory";
++				reg = <0x7280000 0x80000>;
++			};
++
++			partition@7300000 {
++				label = "stock-log";
++				reg = <0x7300000 0x400000>;
++			};
++		};
++	};
++};
+diff --git a/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-base.dtsi b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-base.dtsi
+new file mode 100644
+index 0000000000..2b70b0a843
+--- /dev/null
++++ b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-base.dtsi
+@@ -0,0 +1,213 @@
++/dts-v1/;
++#include "mt7981.dtsi"
++
++/ {
++	model = "360 T7";
++	compatible = "360,t7-snand", "mediatek,mt7981";
++
++	aliases {
++		led-boot = &red_led;
++		led-failsafe = &red_led;
++		led-running = &green_led;
++		led-upgrade = &green_led;
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200n1 loglevel=8  \
++				earlycon=uart8250,mmio32,0x11002000";
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		green_led: green {
++			label = "360t7:green";
++			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
++		};
++
++		red_led: red {
++			label = "360t7:red";
++			gpios = <&pio 3 GPIO_ACTIVE_LOW>;
++		};
++	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++			reset {
++				label = "reset";
++				linux,code = <KEY_RESTART>;
++				gpios = <&pio 1 GPIO_ACTIVE_LOW>;
++			};
++
++			wps {
++				label = "wps";
++				linux,code = <KEY_WPS_BUTTON>;
++				gpios = <&pio 0 GPIO_ACTIVE_LOW>;
++			};
++	};
++
++	gsw: gsw@0 {
++		compatible = "mediatek,mt753x";
++		mediatek,ethsys = <&ethsys>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&watchdog {
++	status = "okay";
++};
++
++&eth {
++	status = "okay";
++
++	gmac0: mac@0 {
++		compatible = "mediatek,eth-mac";
++		reg = <0>;
++		phy-mode = "2500base-x";
++
++		fixed-link {
++			speed = <2500>;
++			full-duplex;
++			pause;
++		};
++	};
++
++	gmac1: mac@1 {
++		compatible = "mediatek,eth-mac";
++		reg = <1>;
++		phy-mode = "2500base-x";
++
++		fixed-link {
++			speed = <2500>;
++			full-duplex;
++			pause;
++		};
++	};
++
++	mdio: mdio-bus {
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
++};
++
++&gsw {
++	mediatek,mdio = <&mdio>;
++	mediatek,mdio_master_pinmux = <0>;
++	reset-gpios = <&pio 39 0>;
++	interrupt-parent = <&pio>;
++	interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
++	status = "okay";
++
++	port5: port@5 {
++		compatible = "mediatek,mt753x-port";
++		reg = <5>;
++		phy-mode = "sgmii";
++
++		fixed-link {
++			speed = <2500>;
++			full-duplex;
++		};
++	};
++
++	port6: port@6 {
++		compatible = "mediatek,mt753x-port";
++		mediatek,ssc-on;
++		reg = <6>;
++		phy-mode = "sgmii";
++
++		fixed-link {
++			speed = <2500>;
++			full-duplex;
++		};
++	};
++};
++
++&hnat {
++	mtketh-wan = "eth1";
++	mtketh-lan = "eth0";
++	mtketh-max-gmac = <2>;
++	status = "okay";
++};
++
++&spi0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi0_flash_pins>;
++	status = "okay";
++
++	spi_nand: spi_nand@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "spi-nand";
++		reg = <0>;
++		spi-max-frequency = <52000000>;
++		spi-tx-bus-width = <4>;
++		spi-rx-bus-width = <4>;
++		spi-cal-enable;
++		spi-cal-mode = "read-data";
++		spi-cal-datalen = <7>;
++		spi-cal-data = /bits/ 8 <0x53 0x50 0x49 0x4E 0x41 0x4E 0x44>; /* 'SPINAND' */
++		spi-cal-addrlen = <5>;
++		spi-cal-addr = /bits/ 32 <0x0 0x0 0x0 0x0 0x0>;
++	};
++};
++
++&pio {
++	pwm0_pin: pwm0-pin-g0 {
++		mux {
++			function = "pwm";
++			groups = "pwm0_0";
++		};
++	};
++
++	pwm1_pin: pwm1-pin-g0 {
++		mux {
++			function = "pwm";
++			groups = "pwm1_0";
++		};
++	};
++
++	pwm2_pin: pwm2-pin {
++		mux {
++			function = "pwm";
++			groups = "pwm2";
++		};
++	};
++
++	spi0_flash_pins: spi0-pins {
++		mux {
++			function = "spi";
++			groups = "spi0", "spi0_wp_hold";
++		};
++
++		conf-pu {
++			pins = "SPI0_CS", "SPI0_HOLD", "SPI0_WP";
++			drive-strength = <MTK_DRIVE_8mA>;
++			bias-pull-up = <MTK_PUPD_SET_R1R0_11>;
++		};
++
++		conf-pd {
++			pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO";
++			drive-strength = <MTK_DRIVE_8mA>;
++			bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
++		};
++	};
++
++	uart1_pins: uart1-pins-g1 {
++		mux {
++			function = "uart";
++			groups = "uart1_1";
++		};
++	};
++
++	uart2_pins: uart2-pins-g1 {
++		mux {
++			function = "uart";
++			groups = "uart2_1";
++		};
++	};
++};
+diff --git a/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7.dts b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7.dts
+new file mode 100644
+index 0000000000..03e9aa2545
+--- /dev/null
++++ b/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7.dts
+@@ -0,0 +1,74 @@
++/dts-v1/;
++#include "mt7981-360-t7-base.dtsi"
++
++/ {
++	memory {
++		reg = <0 0x40000000 0 0x20000000>;
++	};
++    
++	nmbm_spim_nand {
++		compatible = "generic,nmbm";
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		lower-mtd-device = <&spi_nand>;
++		forced-create;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "BL2";
++				reg = <0x00 0x100000>;
++			};
++
++			partition@100000 {
++				label = "u-boot-env";
++				reg = <0x100000 0x80000>;
++			};
++
++			partition@180000 {
++				label = "Factory";
++				reg = <0x180000 0x200000>;
++			};
++
++			partition@380000 {
++				label = "FIP";
++				reg = <0x380000 0x200000>;
++			};
++
++			partition@580000 {
++				label = "ubi";
++				reg = <0x580000 0x2400000>;
++			};
++
++			partition@2980000 {
++				label = "firmware-1";
++				reg = <0x2980000 0x2400000>;
++			};
++
++			partition@4D80000 {
++				label = "plugin";
++				reg = <0x4d80000 0x2400000>;
++			};
++
++			partition@7180000 {
++				label = "stock-config";
++				reg = <0x7180000 0x100000>;
++			};
++
++			partition@7280000 {
++				label = "stock-factory";
++				reg = <0x7280000 0x80000>;
++			};
++
++			partition@7300000 {
++				label = "stock-log";
++				reg = <0x7300000 0x400000>;
++			};
++		};
++	};
++};
+diff --git a/target/linux/mediatek/image/mt7981.mk b/target/linux/mediatek/image/mt7981.mk
+index b7f1f6d437..e52aae37e7 100755
+--- a/target/linux/mediatek/image/mt7981.mk
++++ b/target/linux/mediatek/image/mt7981.mk
+@@ -222,3 +222,54 @@ define Device/glinet_gl-mt2500
+   IMAGE/sysupgrade.bin := sysupgrade-tar | append-gl-metadata
+ endef
+ TARGET_DEVICES += glinet_gl-mt2500
++
++define Device/mt7981-360-t7
++  DEVICE_VENDOR := MediaTek
++  DEVICE_MODEL := 360 T7 (with 36M ubi 256M DDR)
++  DEVICE_DTS := mt7981-360-t7
++  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
++  SUPPORTED_DEVICES := 360,t7-snand
++  UBINIZE_OPTS := -E 5
++  BLOCKSIZE := 128k
++  PAGESIZE := 2048
++  IMAGE_SIZE := 36864k
++  KERNEL_IN_UBI := 1
++  IMAGES += factory.bin
++  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
++  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
++endef
++TARGET_DEVICES += mt7981-360-t7
++
++define Device/mt7981-360-t7-108M-256M
++  DEVICE_VENDOR := MediaTek
++  DEVICE_MODEL := 360 T7 (with 108M ubi 256M DDR)
++  DEVICE_DTS := mt7981-360-t7-108M-256M
++  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
++  SUPPORTED_DEVICES := 360,t7-snand
++  UBINIZE_OPTS := -E 5
++  BLOCKSIZE := 128k
++  PAGESIZE := 2048
++  IMAGE_SIZE := 110592k
++  KERNEL_IN_UBI := 1
++  IMAGES += factory.bin
++  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
++  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
++endef
++TARGET_DEVICES += mt7981-360-t7-108M-256M
++
++define Device/mt7981-360-t7-108M-512M
++  DEVICE_VENDOR := MediaTek
++  DEVICE_MODEL := 360 T7 (with 108M ubi 512M DDR)
++  DEVICE_DTS := mt7981-360-t7-108M-512M
++  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
++  SUPPORTED_DEVICES := 360,t7-snand
++  UBINIZE_OPTS := -E 5
++  BLOCKSIZE := 128k
++  PAGESIZE := 2048
++  IMAGE_SIZE := 110592k
++  KERNEL_IN_UBI := 1
++  IMAGES += factory.bin
++  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
++  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
++endef
++TARGET_DEVICES += mt7981-360-t7-108M-512M
+\ No newline at end of file
+diff --git a/target/linux/mediatek/mt7981/base-files/etc/board.d/01_leds b/target/linux/mediatek/mt7981/base-files/etc/board.d/01_leds
+index 43905e604d..91332e5f45 100755
+--- a/target/linux/mediatek/mt7981/base-files/etc/board.d/01_leds
++++ b/target/linux/mediatek/mt7981/base-files/etc/board.d/01_leds
+@@ -12,6 +12,10 @@ glinet,x3000-emmc)
+         ucidef_set_led_netdev  "wlan5g" "WLAN5G" "wifi:5g"  "rax0"
+ 	ucidef_set_led_default "power"  "POWER"  "power"    "1"
+         ;;
++*360,t7*)
++	ucidef_set_led_default "green" "GREEN" "360t7:green" "1"
++	ucidef_set_led_default "red" "RED" "360t7:red" "0"
++	;;
+ esac
+ 
+ board_config_flush
+diff --git a/target/linux/mediatek/mt7981/base-files/etc/board.d/02_network b/target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
+index c2a22e425b..b33bc509b7 100755
+--- a/target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
++++ b/target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
+@@ -28,6 +28,11 @@ mediatek_setup_interfaces()
+ 	*mt2500*)
+ 		ucidef_set_interfaces_lan_wan eth1 eth0
+ 		;;
++	*360,t7*)
++		ucidef_set_interfaces_lan_wan "eth0" "eth1"
++		ucidef_add_switch "switch0" \
++			"0:lan" "1:lan" "2:lan" "3:wan" "6u@eth0" "5u@eth1"
++		;;
+ 	*)
+ 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" eth1
+ 		;;
+@@ -55,6 +60,20 @@ mediatek_setup_macs()
+ 		wan_mac=$(get_mac_binary /dev/mmcblk0p3 0x0a)
+ 		lan_mac=$(macaddr_add "$wan_mac" 1)
+ 		;;
++	*360,t7*)
++		local part=$(find_mtd_part "stock-factory")
++		if [ -n "$part" ]; then
++			local factoryMac="$(dd if=$part bs=1 count=200 2>/dev/null |grep "^lanMac=")"
++			if [ -n "$factoryMac" ]; then
++				lan_mac="${factoryMac#lanMac=}"
++				wan_mac="$(macaddr_add $lan_mac 0x1)"
++				if [ "$(mtk_factory_get_byte "Factory" 4 2)" = "00-0c" ]; then
++					local wifi_mac="$(macaddr_add $lan_mac 0x2)"
++					mtk_facrory_write_mac "Factory" 4 $wifi_mac
++				fi
++			fi
++		fi
++		;;
+ 	esac
+ 
+ 	[ -n "$wan_mac" ] && ucidef_set_interface_macaddr "wan" "$wan_mac"
+-- 
+2.25.1
+
