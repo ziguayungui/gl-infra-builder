@@ -1,22 +1,25 @@
 ---
-description: Add the istore dependencies
-
+description: Add the linkease istore dependencies
 feeds:
-  - name: istore_core
-    uri: https://github.com/luochongjun/istore.git
-    branch: main
-  - name: istore_ui
+  - name: linkease_nas
+    uri: https://github.com/linkease/nas-packages.git
+    branch: master
+  - name: linkease_nas_luci
     uri: https://github.com/linkease/nas-packages-luci.git
     branch: main
-  - name: istore_feeds
-    uri: https://github.com/luochongjun/istore_feeds.git
+  - name: linkease_istore
+    uri: https://github.com/linkease/istore
+    branch: main
+  - name: jjm2473_openwrt_third
+    uri: https://github.com/jjm2473/openwrt-third.git
     branch: main
 
 packages:
-  - luci-app-istorex
   - luci-app-linkease
-  - luci-app-ttyd
-  - bash
+  - luci-app-ddnsto
+  - luci-app-quickstart
+  - luci-theme-argon
 
 diffconfig: |
-  CONFIG_BUSYBOX_CONFIG_CHPASSWD=n
+  CONFIG_FEED_linkease_nas=y
+  CONFIG_FEED_linkease_nas_luci=y
