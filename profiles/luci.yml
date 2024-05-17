@@ -9,6 +9,7 @@ packages:
   - luci
   - luci-base
   - luci-mod-rpc
+  - luci-compat
   - wpad-openssl
 
 diffconfig: |
